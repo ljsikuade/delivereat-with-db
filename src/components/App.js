@@ -1,6 +1,7 @@
 import React from "react";
 import "../styles/App.scss";
 import Cart from "./Cart";
+import Postcode from "./PostCode";
 
 class App extends React.Component {
   constructor() {
@@ -9,16 +10,62 @@ class App extends React.Component {
       menu: [],
       orders: [],
       total: [],
-      secondaryOrders: []
+      secondaryOrders: [],
+      distance: 0
     };
     this.plusOrder = this.plusOrder.bind(this);
     this.minusOrder = this.minusOrder.bind(this);
     this.addToCart = this.addToCart.bind(this);
+    this.removeAffectState = this.removeAffectState.bind(this);
+    this.calculateResult = this.calculateResult.bind(this);
+    this.finalValues = this.finalValues.bind(this);
   }
   componentDidMount() {
     fetch("/menu/")
       .then(res => res.json())
       .then(body => this.setState({ menu: body }));
+  }
+
+  removeAffectState(editedArray) {
+    this.setState({ total: editedArray });
+  }
+
+  calculateResult(long, lat) {
+    fetch(`http://api.postcodes.io/postcodes/EC1R0ND`)
+      .then(response => response.json())
+      .then(body =>
+        this.finalValues(long, lat, body.result.longitude, body.result.latitude)
+      );
+  }
+
+  finalValues(custLong, custLat, ourLong, ourLat) {
+    if (typeof Number.prototype.toRad === "undefined") {
+      Number.prototype.toRad = function() {
+        return (this * Math.PI) / 180;
+      };
+    }
+    //I have no confidence in these calculations.
+    let R = 6371e3; // metres
+    let custLatitude = custLat.toRad();
+    let ourLatitude = ourLat.toRad();
+    //lat2 is our lat, lat 1 is customers
+    let latMinusLatRadians = (ourLat - custLat).toRad();
+    let lonMinusLonRadians = (ourLong - custLong).toRad();
+
+    let a =
+      Math.sin(latMinusLatRadians / 2) * Math.sin(latMinusLatRadians / 2) +
+      Math.cos(ourLatitude) *
+        Math.cos(custLatitude) *
+        Math.sin(lonMinusLonRadians / 2) *
+        Math.sin(lonMinusLonRadians / 2);
+    let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    let distance = R * c;
+    this.convert(distance);
+  }
+
+  convert(dist) {
+    this.setState({ distance: (dist / 1000).toFixed(2) });
   }
 
   plusOrder(foodItem) {
@@ -37,10 +84,16 @@ class App extends React.Component {
     }
     this.setState({ minusGrey: false });
   }
-
+  //Currently does not minus from subsequent orders
   minusOrder(foodItem) {
-    if (total.find(e => e.name === foodItem.name)) {
+    let orders = this.state.orders;
+    let found = orders.indexOf(orders.find(e => e === foodItem.name));
+    if (found != -1) {
+      orders.splice(found, 1);
+      console.log(orders.length);
+      this.setState({ orders: orders });
     } else {
+      alert("Something went wrong!");
     }
   }
 
@@ -73,14 +126,22 @@ class App extends React.Component {
     return (
       <div>
         <nav>
-          <Cart total={this.state.total} />
+          <Cart
+            distance={this.state.distance}
+            total={this.state.total}
+            removeAffectState={this.removeAffectState}
+          />
         </nav>
-
+        <p>Enter your postcode:</p>
+        <Postcode calculateResult={this.calculateResult} />
         <ul>
           {this.state.menu.map(foodItem => (
             <li key={foodItem.id}>
               {foodItem.name} {foodItem.price}
-              <button onClick={() => this.addToCart(foodItem)}>
+              <button
+                className="button-test"
+                onClick={() => this.addToCart(foodItem)}
+              >
                 Add to Cart
               </button>{" "}
               <label>Quantity:</label>{" "}

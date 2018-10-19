@@ -46,14 +46,13 @@ app.post("/order/", (req, res) => {
   console.log(req.body);
   db.one(`INSERT INTO orders VALUES (DEFAULT) RETURNING id`)
     .then(data => {
-      req.body
-        .forEach(order =>
-          db.any(
-            `INSERT INTO menu_orders (menu_id, order_id, quantity) VALUES ($1, $2, $3)`,
-            [order.menuItemId, data.id, order.quantity]
-          )
+      req.body.forEach(order =>
+        db.any(
+          `INSERT INTO menu_orders (menu_id, order_id, quantity) VALUES ($1, $2, $3)`,
+          [order.id, data.id, order.quantity]
         )
-        .then(() => data);
+      );
+      return data;
     })
     .then(results => res.json(results))
     .catch(function(error) {
