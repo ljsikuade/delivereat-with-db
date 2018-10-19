@@ -11,6 +11,7 @@ class PostCode extends React.Component {
     this.setState({ value: event.target.value });
   }
   handleSubmit(event) {
+    this.props.postCodeHandler(this.state.value);
     event.preventDefault();
     fetch(`http://api.postcodes.io/postcodes/${this.state.value}`)
       .then(response => response.json())
@@ -19,11 +20,10 @@ class PostCode extends React.Component {
       );
   }
   render() {
-    console.log(this.state.value);
     return (
       <form onSubmit={this.handleSubmit}>
         <input value={this.state.value} onChange={this.handleChange} />
-        <input type="submit" value="Submit" />
+        <input onClick={this.handleClick} type="submit" value="Lock In" />
       </form>
     );
   }

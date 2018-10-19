@@ -11,7 +11,8 @@ class App extends React.Component {
       orders: [],
       total: [],
       secondaryOrders: [],
-      distance: 0
+      distance: 0,
+      postcode: ""
     };
     this.plusOrder = this.plusOrder.bind(this);
     this.minusOrder = this.minusOrder.bind(this);
@@ -19,6 +20,7 @@ class App extends React.Component {
     this.removeAffectState = this.removeAffectState.bind(this);
     this.calculateResult = this.calculateResult.bind(this);
     this.finalValues = this.finalValues.bind(this);
+    this.postCodeHandler = this.postCodeHandler.bind(this);
   }
   componentDidMount() {
     fetch("/menu/")
@@ -62,6 +64,12 @@ class App extends React.Component {
 
     let distance = R * c;
     this.convert(distance);
+  }
+
+  postCodeHandler(postCode) {
+    if (postCode.length > 6) {
+      this.setState({ postcode: postCode });
+    }
   }
 
   convert(dist) {
@@ -127,13 +135,17 @@ class App extends React.Component {
       <div>
         <nav>
           <Cart
+            postCode={this.state.postcode}
             distance={this.state.distance}
             total={this.state.total}
             removeAffectState={this.removeAffectState}
           />
         </nav>
         <p>Enter your postcode:</p>
-        <Postcode calculateResult={this.calculateResult} />
+        <Postcode
+          postCodeHandler={this.postCodeHandler}
+          calculateResult={this.calculateResult}
+        />
         <ul>
           {this.state.menu.map(foodItem => (
             <li key={foodItem.id}>

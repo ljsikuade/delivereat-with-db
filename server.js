@@ -67,7 +67,7 @@ app.delete("/order/:id", (req, res) => {
   //first delete from the join table.
   db.none(`DELETE FROM menu_orders WHERE order_id = $1`, [req.params.id])
     .then(() => db.none(`DELETE FROM orders WHERE id = $1`, [req.params.id]))
-    .then(() => res.send(`Order deleted`))
+    .then(() => res.json({ reply: "Order deleted" }))
     .catch(function(error) {
       res.status(500).send("Oh dear. Something went wrong:" + error);
     });
