@@ -41,6 +41,15 @@ app.get("/order/:id", (req, res) => {
     });
 });
 
+//Top picks
+app.get("/top/", (req, res) => {
+  db.any(`SELECT menu_id, COUNT(*) FROM menu_orders GROUP BY menu_id;`)
+    .then(data => res.json(data))
+    .catch(function(error) {
+      res.status(500).send("Oh dear. Something went wrong:" + error);
+    });
+});
+
 //Add a new order to the database under a single order id.
 app.post("/order/", (req, res) => {
   console.log(req.body);

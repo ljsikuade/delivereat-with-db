@@ -23,8 +23,15 @@ class Cart extends React.Component {
   }
 
   calculateTime() {
-    let t = this.props.distance / 22.5;
-    return t;
+    let t = (this.props.distance / 22.5).toFixed(2);
+    let minutesOfTFull = t - Math.floor(t);
+    let minutesOfTRestrained = minutesOfTFull.toFixed(2) * 100;
+    if (t < 1) {
+      return `${t * 100} minutes.`;
+    } else {
+      //needs tweaking. gives 0 each time because values are too smol
+      return `${Math.floor(t)} hour(s) and ${minutesOfTRestrained} minutes.`;
+    }
   }
 
   cancelOrder() {
@@ -69,22 +76,29 @@ class Cart extends React.Component {
   render() {
     console.log(this.state.currentId);
     return (
-      <div>
-        <p onClick={this.handleClick}>Cart</p>{" "}
-        <span className="counter">{this.props.total.length}</span>
+      <div className="cart">
+        <span className="cart__prompt">
+          <p onClick={this.handleClick}>Cart</p>{" "}
+          <span className="counter">{this.props.total.length}</span>
+        </span>
         {this.state.toggleCart && (
           <div>
-            <ul>
+            <ul className="cart__list">
               {this.props.total.map(foodItem => {
                 return (
-                  <li key={foodItem.id}>
+                  <li className="cart__list__item" key={foodItem.id}>
                     {foodItem.name} £{foodItem.price * foodItem.quantity}
                     .00 x{foodItem.quantity}
-                    <button onClick={() => this.removeItem(foodItem)}>-</button>
+                    <button
+                      className="cart__button"
+                      onClick={() => this.removeItem(foodItem)}
+                    >
+                      -
+                    </button>
                   </li>
                 );
               })}
-              <p>
+              <p className="cart__total">
                 Total: £
                 {this.props.total.reduce(
                   (acc, curr) => acc + curr.quantity * curr.price,
@@ -94,26 +108,36 @@ class Cart extends React.Component {
                 .00
               </p>
             </ul>
-            <button onClick={this.handleSubmit}>Submit Order</button>
+            <button className="cart__submit" onClick={this.handleSubmit}>
+              Submit Order
+            </button>
           </div>
         )}
         {this.state.completedOrder && (
-          <div>
+          <div className="completed__order">
+            <div>Accepted! Sending order to {this.props.postCode}</div>
             <ul>
               <p>Order Id: {this.state.currentId}</p>
               {this.props.total.map(order => (
-                <li key={order.id}>
+                <li className="completed__order_info" key={order.id}>
                   {order.name} &nbsp; x{order.quantity} &nbsp; £
                   {order.price * order.quantity}
                   .00
                 </li>
               ))}
             </ul>
-            <p>
-              Your order will be with you in &nbsp;
-              {this.calculateTime()} hour(s)
-            </p>
-            <button onClick={this.cancelOrder}>Cancel Order</button>
+            <span className="completed__order__further">
+              <p>
+                Your order will be with you in &nbsp;
+                {this.calculateTime()}
+              </p>
+              <button
+                className="completed__order__submit"
+                onClick={this.cancelOrder}
+              >
+                Cancel Order
+              </button>
+            </span>
           </div>
         )}
       </div>

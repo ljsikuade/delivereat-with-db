@@ -22,8 +22,17 @@ class PostCode extends React.Component {
   render() {
     return (
       <form onSubmit={this.handleSubmit}>
-        <input value={this.state.value} onChange={this.handleChange} />
-        <input onClick={this.handleClick} type="submit" value="Lock In" />
+        <input
+          value={this.state.value}
+          onChange={this.handleChange}
+          className="postcode__input"
+        />
+        <input
+          onClick={this.handleClick}
+          type="submit"
+          value="Lock In"
+          className="postcode__button"
+        />
       </form>
     );
   }

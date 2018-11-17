@@ -2,6 +2,7 @@ import React from "react";
 import "../styles/App.scss";
 import Cart from "./Cart";
 import Postcode from "./PostCode";
+import TopPicks from "./TopPicks";
 
 class App extends React.Component {
   constructor() {
@@ -130,9 +131,9 @@ class App extends React.Component {
   }
 
   render() {
-    console.log(this.state.orders);
+    console.log(this.state.postcode);
     return (
-      <div>
+      <div className="container">
         <nav>
           <Cart
             postCode={this.state.postcode}
@@ -141,35 +142,51 @@ class App extends React.Component {
             removeAffectState={this.removeAffectState}
           />
         </nav>
-        <p>Enter your postcode:</p>
-        <Postcode
-          postCodeHandler={this.postCodeHandler}
-          calculateResult={this.calculateResult}
-        />
-        <ul>
-          {this.state.menu.map(foodItem => (
-            <li key={foodItem.id}>
-              {foodItem.name} {foodItem.price}
-              <button
-                className="button-test"
-                onClick={() => this.addToCart(foodItem)}
-              >
-                Add to Cart
-              </button>{" "}
-              <label>Quantity:</label>{" "}
-              <button onClick={() => this.plusOrder(foodItem)}>+</button>
-              <button
-                disabled={
-                  //false
-                  !this.state.orders.includes(foodItem.name)
-                }
-                onClick={() => this.minusOrder(foodItem)}
-              >
-                -
-              </button>
-            </li>
-          ))}
-        </ul>
+        <div className="postcode">
+          <p className="postcode__enter">Enter your postcode:</p>
+          <Postcode
+            postCodeHandler={this.postCodeHandler}
+            calculateResult={this.calculateResult}
+          />
+        </div>
+        <span className="menu">
+          <ul className="menu__list">
+            {this.state.menu.map(foodItem => (
+              <li className="menu__list__item" key={foodItem.id}>
+                <span className="menu__list__details">
+                  {foodItem.name} &nbsp; £{foodItem.price}
+                  .00 &nbsp;
+                </span>
+                <button
+                  className="menu__list__add"
+                  onClick={() => this.addToCart(foodItem)}
+                >
+                  Add to Cart
+                </button>{" "}
+                <span className="menu__list__quantity">
+                  <label>Quantity:</label>{" "}
+                  <button
+                    className="menu__list__plus"
+                    onClick={() => this.plusOrder(foodItem)}
+                  >
+                    +
+                  </button>
+                  <button
+                    className="menu__list__minus"
+                    disabled={
+                      //false
+                      !this.state.orders.includes(foodItem.name)
+                    }
+                    onClick={() => this.minusOrder(foodItem)}
+                  >
+                    -
+                  </button>
+                </span>
+              </li>
+            ))}
+          </ul>
+          <TopPicks menu={this.state.menu} />
+        </span>
       </div>
     );
   }
