@@ -7,9 +7,9 @@ Final order requests are handled by a back end which includes a database, and co
 is sent back to the user.
 
 # Technologies
--React
--Node
--PostgreSQL
+* React
+* Node
+* PostgreSQL
 
 # Setting Up
 
